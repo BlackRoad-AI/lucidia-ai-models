@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── Primary SEO ─────────────────────────────────────────────────────── -->
+  <title>BlackRoad AI — tests/ | test_ai_models.py · pytest · 17 Tests</title>
+  <meta name="description" content="BlackRoad AI lucidia-ai-models test suite: test_ai_models.py — 17 pytest unit tests covering AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult, provider filtering, versioning, benchmarking, and metrics. BlackRoad OS sovereign AI.">
+  <meta name="keywords" content="BlackRoad AI, lucidia-ai-models, test_ai_models.py, pytest, unit tests, AIModelRegistry tests, Python testing, BlackRoad OS, Lucidia AI, sovereign AI testing, model registry tests, version tracking tests, benchmark tests, metrics tests, BlackRoad-AI GitHub, blackroad.io, lucidia.earth">
+  <meta name="author" content="BlackRoad OS, Inc.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://blackroad-ai.github.io/lucidia-ai-models/tests/">
+
+  <!-- ── Open Graph ──────────────────────────────────────────────────────── -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="BlackRoad AI — lucidia-ai-models · tests/test_ai_models.py">
+  <meta property="og:description" content="17 pytest unit tests for AIModelRegistry: registration, versioning, benchmarking, provider filtering, metrics. BlackRoad OS sovereign AI.">
+  <meta property="og:url" content="https://blackroad-ai.github.io/lucidia-ai-models/tests/">
+  <meta property="og:site_name" content="BlackRoad OS">
+
+  <!-- ── Structured Data — SoftwareSourceCode ───────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "lucidia-ai-models — tests/test_ai_models.py",
+    "description": "17 pytest unit tests for AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult, and ModelMetrics. Covers registration, versioning, benchmarking, provider filtering, and metrics aggregation.",
+    "codeRepository": "https://github.com/BlackRoad-AI/lucidia-ai-models",
+    "programmingLanguage": {
+      "@type": "ComputerLanguage",
+      "name": "Python",
+      "version": "3.9+"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "BlackRoad OS, Inc.",
+      "url": "https://blackroad.io"
+    },
+    "keywords": "pytest, unit tests, AI model registry, Python testing, BlackRoad, Lucidia"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: #000000;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+    }
+    header {
+      background: #000000;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ffffff;
+    }
+    .logo { font-size: 1.2rem; font-weight: 700; color: #ffffff; letter-spacing: 0.05em; text-decoration: none; }
+    nav { font-size: 0.65rem; display: flex; gap: 20px; }
+    nav a { color: #888888; text-decoration: none; }
+    nav a:hover { color: #ffffff; }
+    .hero {
+      padding: 48px 24px 36px;
+      border-bottom: 1px solid #ffffff;
+    }
+    .hero-label { font-size: 0.6rem; color: #555555; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 10px; }
+    .hero h1 { font-size: 2rem; font-weight: 700; line-height: 1.05; }
+    .hero p { margin-top: 12px; font-size: 0.7rem; color: #666666; line-height: 1.9; }
+    .content { padding: 32px 24px; }
+    .section-label {
+      font-size: 0.58rem; color: #555555; letter-spacing: 0.2em;
+      text-transform: uppercase; margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #333333; }
+    .test-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 32px; }
+    .test-item {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 10px 12px; border: 1px solid #1a1a1a;
+    }
+    .test-item:hover { border-color: #444; }
+    .test-name { font-size: 0.75rem; font-weight: 700; color: #ffffff; }
+    .test-group { font-size: 0.55rem; color: #555555; letter-spacing: 0.1em; text-transform: uppercase; }
+    .test-desc { font-size: 0.65rem; color: #888888; line-height: 1.6; }
+    .pass-badge {
+      display: inline-block; font-size: 0.55rem; color: #00cc66;
+      border: 1px solid #00cc66; padding: 2px 6px; margin-left: 8px;
+    }
+    .back-link { display: inline-block; margin-top: 24px; font-size: 0.65rem; color: #555555; text-decoration: none; }
+    .back-link:hover { color: #ffffff; }
+    footer {
+      padding: 20px 24px; border-top: 1px solid #333333;
+      font-size: 0.58rem; color: #444444;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    footer a { color: #555555; text-decoration: none; }
+    footer a:hover { color: #ffffff; }
+    @media (min-width: 768px) {
+      header { padding: 20px 40px; }
+      .hero { padding: 56px 40px 44px; }
+      .hero h1 { font-size: 2.4rem; }
+      .content { padding: 36px 40px; }
+      footer { padding: 20px 40px; flex-direction: row; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">BlackRoad</a>
+    <nav aria-label="Primary navigation">
+      <a href="../directory.html">directory</a>
+      <a href="../src/index.html">source</a>
+      <a href="https://github.com/BlackRoad-AI/lucidia-ai-models" target="_blank" rel="noopener">github</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="hero-label">lucidia-ai-models · tests/</div>
+      <h1>test_ai_models.py</h1>
+      <p>17 pytest unit tests · AIModelRegistry · ModelEntry · ModelVersion · BenchmarkResult · ModelMetrics<br>
+         BlackRoad OS sovereign AI — Python 3.9+ · SQLite · <code>pytest tests/test_ai_models.py -v</code></p>
+    </div>
+
+    <div class="content">
+
+      <div class="section-label">dataclass defaults · 2 tests</div>
+      <div class="test-list">
+        <div class="test-item">
+          <span class="test-name">test_model_entry_defaults <span class="pass-badge">PASS</span></span>
+          <span class="test-group">dataclass defaults</span>
+          <span class="test-desc">Verifies ModelEntry default values: license="apache-2.0", tags=[], len(model_id)==8.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_model_version_defaults <span class="pass-badge">PASS</span></span>
+          <span class="test-group">dataclass defaults</span>
+          <span class="test-desc">Verifies ModelVersion defaults: version="1.0.0", is_latest=True, training_steps=0.</span>
+        </div>
+      </div>
+
+      <div class="section-label">registration · 4 tests</div>
+      <div class="test-list">
+        <div class="test-item">
+          <span class="test-name">test_register_model_returns_entry <span class="pass-badge">PASS</span></span>
+          <span class="test-group">registration</span>
+          <span class="test-desc">register_model() returns the ModelEntry with the correct model_id.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_get_model_after_register <span class="pass-badge">PASS</span></span>
+          <span class="test-group">registration</span>
+          <span class="test-desc">Model can be retrieved by ID after registration; name and provider match.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_get_model_not_found <span class="pass-badge">PASS</span></span>
+          <span class="test-group">registration</span>
+          <span class="test-desc">get_model() returns None for a non-existent model_id.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_tags_preserved_round_trip <span class="pass-badge">PASS</span></span>
+          <span class="test-group">registration</span>
+          <span class="test-desc">Tags are serialized to JSON and deserialized correctly on fetch.</span>
+        </div>
+      </div>
+
+      <div class="section-label">listing · 3 tests</div>
+      <div class="test-list">
+        <div class="test-item">
+          <span class="test-name">test_list_models_empty <span class="pass-badge">PASS</span></span>
+          <span class="test-group">listing</span>
+          <span class="test-desc">list_models() returns empty list when no models are registered.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_list_models_count <span class="pass-badge">PASS</span></span>
+          <span class="test-group">listing</span>
+          <span class="test-desc">list_models() returns all 3 registered models.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_list_models_filter_by_provider <span class="pass-badge">PASS</span></span>
+          <span class="test-group">listing</span>
+          <span class="test-desc">list_models(provider="openai") returns only models from OpenAI.</span>
+        </div>
+      </div>
+
+      <div class="section-label">versioning · 3 tests</div>
+      <div class="test-list">
+        <div class="test-item">
+          <span class="test-name">test_add_version <span class="pass-badge">PASS</span></span>
+          <span class="test-group">versioning</span>
+          <span class="test-desc">add_version() stores a checkpoint and get_versions() returns it.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_latest_version_flag_on_second_add <span class="pass-badge">PASS</span></span>
+          <span class="test-group">versioning</span>
+          <span class="test-desc">Adding a second version marks the previous one as not-latest.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_get_versions_empty_model <span class="pass-badge">PASS</span></span>
+          <span class="test-group">versioning</span>
+          <span class="test-desc">get_versions() returns empty list for a model with no versions.</span>
+        </div>
+      </div>
+
+      <div class="section-label">benchmarking · 2 tests</div>
+      <div class="test-list">
+        <div class="test-item">
+          <span class="test-name">test_benchmark_model_stores_result <span class="pass-badge">PASS</span></span>
+          <span class="test-group">benchmarking</span>
+          <span class="test-desc">benchmark_model() stores and returns the BenchmarkResult with correct score.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_benchmark_score_clamped_display <span class="pass-badge">PASS</span></span>
+          <span class="test-group">benchmarking</span>
+          <span class="test-desc">Score bar rendering does not crash on edge values 0.0 and 100.0.</span>
+        </div>
+      </div>
+
+      <div class="section-label">metrics · 3 tests</div>
+      <div class="test-list">
+        <div class="test-item">
+          <span class="test-name">test_get_metrics_with_data <span class="pass-badge">PASS</span></span>
+          <span class="test-group">metrics</span>
+          <span class="test-desc">get_metrics() returns correct total_versions, total_benchmarks, and best_score.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_get_metrics_no_data <span class="pass-badge">PASS</span></span>
+          <span class="test-group">metrics</span>
+          <span class="test-desc">get_metrics() returns None for a model with no versions.</span>
+        </div>
+        <div class="test-item">
+          <span class="test-name">test_get_metrics_best_score_is_max <span class="pass-badge">PASS</span></span>
+          <span class="test-group">metrics</span>
+          <span class="test-desc">best_score returns the maximum score across all benchmark results.</span>
+        </div>
+      </div>
+
+      <a class="back-link" href="../directory.html">← back to directory</a>
+    </div>
+  </main>
+
+  <footer>
+    <span>BlackRoad OS, Inc. · <a href="https://blackroad.io" target="_blank" rel="noopener">blackroad.io</a> · <a href="https://lucidia.earth" target="_blank" rel="noopener">lucidia.earth</a></span>
+    <span><a href="../directory.html">directory</a> · <a href="../src/index.html">source</a></span>
+  </footer>
+
+</body>
+</html>

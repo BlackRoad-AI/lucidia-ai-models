@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://blackroad-ai.github.io/lucidia-ai-models/sitemap.xml

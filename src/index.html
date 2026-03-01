@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ── Primary SEO ─────────────────────────────────────────────────────── -->
+  <title>BlackRoad AI — src/ | ai_models.py · AIModelRegistry · Python Source</title>
+  <meta name="description" content="BlackRoad AI lucidia-ai-models source code: ai_models.py — AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult, ModelMetrics. Python 3.9+ SQLite AI model registry with CLI and Python API. Part of BlackRoad OS sovereign AI infrastructure.">
+  <meta name="keywords" content="BlackRoad AI, lucidia-ai-models, ai_models.py, AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult, ModelMetrics, Python AI model registry, BlackRoad OS, Lucidia AI, sovereign AI, SQLite model registry, AI benchmarking, model versioning, HuggingFace, OpenAI, Anthropic, Meta LLaMA, Mistral, Qwen, DeepSeek, AI model hub, BlackRoad-AI GitHub, blackroad.io, lucidia.earth">
+  <meta name="author" content="BlackRoad OS, Inc.">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://blackroad-ai.github.io/lucidia-ai-models/src/">
+
+  <!-- ── Open Graph ──────────────────────────────────────────────────────── -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="BlackRoad AI — lucidia-ai-models · src/ai_models.py">
+  <meta property="og:description" content="AIModelRegistry Python source: universal AI model memory hub with version tracking, benchmarking, and CLI. BlackRoad OS sovereign AI.">
+  <meta property="og:url" content="https://blackroad-ai.github.io/lucidia-ai-models/src/">
+  <meta property="og:site_name" content="BlackRoad OS">
+
+  <!-- ── Structured Data — SoftwareSourceCode ───────────────────────────── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareSourceCode",
+    "name": "lucidia-ai-models — src/ai_models.py",
+    "description": "Universal AI model memory hub: AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult. Python 3.9+ with SQLite persistence. CLI and Python API. Part of BlackRoad OS sovereign AI infrastructure.",
+    "codeRepository": "https://github.com/BlackRoad-AI/lucidia-ai-models",
+    "programmingLanguage": {
+      "@type": "ComputerLanguage",
+      "name": "Python",
+      "version": "3.9+"
+    },
+    "author": {
+      "@type": "Organization",
+      "name": "BlackRoad OS, Inc.",
+      "url": "https://blackroad.io"
+    },
+    "keywords": "AI model registry, model versioning, benchmarking, Python, SQLite, BlackRoad, Lucidia",
+    "license": "https://github.com/BlackRoad-AI/lucidia-ai-models/blob/main/LICENSE"
+  }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: #000000;
+      color: #ffffff;
+      font-family: 'JetBrains Mono', monospace;
+      min-height: 100vh;
+    }
+    header {
+      background: #000000;
+      padding: 20px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #ffffff;
+    }
+    .logo { font-size: 1.2rem; font-weight: 700; color: #ffffff; letter-spacing: 0.05em; text-decoration: none; }
+    nav { font-size: 0.65rem; display: flex; gap: 20px; }
+    nav a { color: #888888; text-decoration: none; }
+    nav a:hover { color: #ffffff; }
+    .hero {
+      padding: 48px 24px 36px;
+      border-bottom: 1px solid #ffffff;
+    }
+    .hero-label { font-size: 0.6rem; color: #555555; letter-spacing: 0.2em; text-transform: uppercase; margin-bottom: 10px; }
+    .hero h1 { font-size: 2rem; font-weight: 700; line-height: 1.05; }
+    .hero p { margin-top: 12px; font-size: 0.7rem; color: #666666; line-height: 1.9; }
+    .content { padding: 32px 24px; }
+    .section-label {
+      font-size: 0.58rem; color: #555555; letter-spacing: 0.2em;
+      text-transform: uppercase; margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: #333333; }
+    .symbol-list { display: flex; flex-direction: column; gap: 2px; margin-bottom: 32px; }
+    .symbol-item {
+      display: flex; flex-direction: column; gap: 4px;
+      padding: 10px 12px; border: 1px solid #1a1a1a;
+    }
+    .symbol-item:hover { border-color: #444; }
+    .symbol-name { font-size: 0.78rem; font-weight: 700; color: #ffffff; }
+    .symbol-type { font-size: 0.58rem; color: #555555; }
+    .symbol-desc { font-size: 0.65rem; color: #888888; line-height: 1.6; }
+    .tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+    .tag {
+      font-size: 0.55rem; color: #555555; border: 1px solid #333333;
+      padding: 3px 8px; letter-spacing: 0.1em; text-transform: uppercase;
+    }
+    .back-link { display: inline-block; margin-top: 24px; font-size: 0.65rem; color: #555555; text-decoration: none; }
+    .back-link:hover { color: #ffffff; }
+    footer {
+      padding: 20px 24px; border-top: 1px solid #333333;
+      font-size: 0.58rem; color: #444444;
+      display: flex; flex-direction: column; gap: 4px;
+    }
+    footer a { color: #555555; text-decoration: none; }
+    footer a:hover { color: #ffffff; }
+    @media (min-width: 768px) {
+      header { padding: 20px 40px; }
+      .hero { padding: 56px 40px 44px; }
+      .hero h1 { font-size: 2.4rem; }
+      .content { padding: 36px 40px; }
+      footer { padding: 20px 40px; flex-direction: row; justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <a class="logo" href="../index.html">BlackRoad</a>
+    <nav aria-label="Primary navigation">
+      <a href="../directory.html">directory</a>
+      <a href="../tests/index.html">tests</a>
+      <a href="https://github.com/BlackRoad-AI/lucidia-ai-models" target="_blank" rel="noopener">github</a>
+    </nav>
+  </header>
+
+  <main>
+    <div class="hero">
+      <div class="hero-label">lucidia-ai-models · src/</div>
+      <h1>ai_models.py</h1>
+      <p>Universal AI model memory hub — AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult.<br>
+         Python 3.9+ · SQLite · CLI · BlackRoad OS sovereign AI infrastructure.</p>
+    </div>
+
+    <div class="content">
+
+      <div class="section-label">classes &amp; dataclasses</div>
+      <div class="symbol-list">
+
+        <div class="symbol-item">
+          <span class="symbol-name">AIModelRegistry</span>
+          <span class="symbol-type">class · core</span>
+          <span class="symbol-desc">Universal AI model memory hub. Manages model registration, version tracking, benchmarking, and metrics aggregation. Persists all data in a local SQLite database at <code>~/.blackroad/ai_models.db</code>.</span>
+          <div class="tag-cloud">
+            <span class="tag">register_model</span>
+            <span class="tag">get_model</span>
+            <span class="tag">list_models</span>
+            <span class="tag">add_version</span>
+            <span class="tag">get_versions</span>
+            <span class="tag">benchmark_model</span>
+            <span class="tag">get_metrics</span>
+            <span class="tag">close</span>
+          </div>
+        </div>
+
+        <div class="symbol-item">
+          <span class="symbol-name">ModelEntry</span>
+          <span class="symbol-type">dataclass · model</span>
+          <span class="symbol-desc">Represents a registered AI model. Fields: model_id (auto UUID8), name, provider, architecture, parameter_count, license (apache-2.0), tags, created_at.</span>
+          <div class="tag-cloud">
+            <span class="tag">huggingface</span>
+            <span class="tag">meta</span>
+            <span class="tag">openai</span>
+            <span class="tag">anthropic</span>
+            <span class="tag">deepseek</span>
+            <span class="tag">alibaba</span>
+            <span class="tag">blackroad</span>
+          </div>
+        </div>
+
+        <div class="symbol-item">
+          <span class="symbol-name">ModelVersion</span>
+          <span class="symbol-type">dataclass · versioning</span>
+          <span class="symbol-desc">Tracks model checkpoints. Fields: version_id, model_id, version (semver), checkpoint_path, training_steps, is_latest, notes, created_at.</span>
+        </div>
+
+        <div class="symbol-item">
+          <span class="symbol-name">BenchmarkResult</span>
+          <span class="symbol-type">dataclass · benchmarking</span>
+          <span class="symbol-desc">Records evaluation results. Fields: bench_id, model_id, version_id, task (mmlu/hellaswag/humaneval), score, latency_p50_ms, latency_p99_ms, throughput_rps, gpu_memory_gb, notes, created_at.</span>
+          <div class="tag-cloud">
+            <span class="tag">mmlu</span>
+            <span class="tag">hellaswag</span>
+            <span class="tag">humaneval</span>
+            <span class="tag">latency</span>
+            <span class="tag">throughput</span>
+          </div>
+        </div>
+
+        <div class="symbol-item">
+          <span class="symbol-name">ModelMetrics</span>
+          <span class="symbol-type">dataclass · aggregation</span>
+          <span class="symbol-desc">Aggregate metrics per model: total_versions, total_benchmarks, best_score, avg_latency_ms, last_updated.</span>
+        </div>
+
+      </div><!-- /.symbol-list -->
+
+      <div class="section-label">cli commands</div>
+      <div class="symbol-list">
+        <div class="symbol-item">
+          <span class="symbol-name">register</span>
+          <span class="symbol-type">cli · subcommand</span>
+          <span class="symbol-desc">Register a new AI model. Args: --name, --provider, --arch, --params, --tags.</span>
+        </div>
+        <div class="symbol-item">
+          <span class="symbol-name">list</span>
+          <span class="symbol-type">cli · subcommand</span>
+          <span class="symbol-desc">List all registered models. Optional: --provider filter.</span>
+        </div>
+        <div class="symbol-item">
+          <span class="symbol-name">version</span>
+          <span class="symbol-type">cli · subcommand</span>
+          <span class="symbol-desc">Add a version checkpoint. Args: --model-id, --version, --steps, --path, --notes.</span>
+        </div>
+        <div class="symbol-item">
+          <span class="symbol-name">benchmark</span>
+          <span class="symbol-type">cli · subcommand</span>
+          <span class="symbol-desc">Record a benchmark result. Args: --model-id, --task, --score, --p50, --p99, --tps.</span>
+        </div>
+        <div class="symbol-item">
+          <span class="symbol-name">metrics</span>
+          <span class="symbol-type">cli · subcommand</span>
+          <span class="symbol-desc">Show aggregate metrics for a model. Args: --model-id.</span>
+        </div>
+        <div class="symbol-item">
+          <span class="symbol-name">get</span>
+          <span class="symbol-type">cli · subcommand</span>
+          <span class="symbol-desc">Get full details for a specific model. Args: model_id (positional).</span>
+        </div>
+      </div>
+
+      <a class="back-link" href="../directory.html">← back to directory</a>
+    </div>
+  </main>
+
+  <footer>
+    <span>BlackRoad OS, Inc. · <a href="https://blackroad.io" target="_blank" rel="noopener">blackroad.io</a> · <a href="https://lucidia.earth" target="_blank" rel="noopener">lucidia.earth</a></span>
+    <span><a href="../directory.html">directory</a> · <a href="../tests/index.html">tests</a></span>
+  </footer>
+
+</body>
+</html>
