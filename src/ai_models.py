@@ -1,6 +1,8 @@
 """
 Lucidia AI Models — Universal AI model memory hub.
 Model registry, version tracking, and performance benchmarking.
+All @copilot / @lucidia / @blackboxprogramming / @ollama requests are routed
+directly to your local Ollama instance — no external providers involved.
 """
 from __future__ import annotations
 
@@ -8,6 +10,8 @@ import argparse
 import json
 import sqlite3
 import time
+import urllib.error
+import urllib.request
 import uuid
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
@@ -20,6 +24,58 @@ C = "\033[0;36m"; B = "\033[0;34m"; M = "\033[0;35m"; NC = "\033[0m"
 BOLD = "\033[1m"
 
 DB_PATH = Path.home() / ".blackroad" / "ai_models.db"
+
+# ── Ollama routing ─────────────────────────────────────────────────────────────
+# All of these aliases forward every request to your local Ollama server.
+# No external provider (OpenAI, Anthropic, Copilot …) is ever contacted.
+OLLAMA_BASE_URL = "http://localhost:11434"
+OLLAMA_ALIASES = frozenset({"@copilot", "@lucidia", "@blackboxprogramming", "@ollama"})
+OLLAMA_TIMEOUT = 120  # seconds to wait for a response from local Ollama
+
+
+class OllamaRouter:
+    """Route @copilot / @lucidia / @blackboxprogramming / @ollama to local Ollama."""
+
+    def __init__(self, base_url: str = OLLAMA_BASE_URL, timeout: int = OLLAMA_TIMEOUT) -> None:
+        self.base_url = base_url.rstrip("/")
+        self.timeout = timeout
+
+    # ------------------------------------------------------------------
+    @staticmethod
+    def should_route(prompt: str) -> bool:
+        """Return True if the prompt contains any recognised alias."""
+        lower = prompt.lower()
+        return any(alias in lower for alias in OLLAMA_ALIASES)
+
+    # ------------------------------------------------------------------
+    def chat(self, prompt: str, model: str = "llama3") -> str:
+        """Send *prompt* to Ollama and return the response text.
+
+        Raises ``ConnectionError`` when Ollama is unreachable and
+        ``RuntimeError`` on any API-level error.
+        """
+        payload = json.dumps({
+            "model": model,
+            "prompt": prompt,
+            "stream": False,
+        }).encode()
+        req = urllib.request.Request(
+            f"{self.base_url}/api/generate",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=self.timeout) as resp:
+                body = json.loads(resp.read().decode())
+        except urllib.error.URLError as exc:
+            raise ConnectionError(
+                f"Cannot reach Ollama at {self.base_url}. "
+                "Make sure `ollama serve` is running."
+            ) from exc
+        if "response" not in body:
+            raise RuntimeError(f"Unexpected Ollama response: {body}")
+        return body["response"]
 
 
 # ── Data models ───────────────────────────────────────────────────────────────
@@ -288,6 +344,18 @@ def main() -> None:
     get = sub.add_parser("get", help="Get model details")
     get.add_argument("model_id")
 
+    cht = sub.add_parser(
+        "chat",
+        help="Send a prompt to local Ollama "
+             "(@copilot / @lucidia / @blackboxprogramming / @ollama are all routed there)",
+    )
+    cht.add_argument("prompt", help="Prompt text (use any @alias to trigger Ollama routing)")
+    cht.add_argument("--model", default="llama3", help="Ollama model name (default: llama3)")
+    cht.add_argument(
+        "--ollama-url", default=OLLAMA_BASE_URL,
+        help=f"Ollama base URL (default: {OLLAMA_BASE_URL})",
+    )
+
     args = parser.parse_args()
     registry = AIModelRegistry()
 
@@ -344,6 +412,23 @@ def main() -> None:
             print(f"\n{BOLD}{B}── {m.name} ──────────────────────{NC}")
             for k, v in asdict(m).items():
                 print(f"  {C}{k:<20}{NC} {v}")
+
+        elif args.cmd == "chat":
+            router = OllamaRouter(base_url=args.ollama_url)
+            if not OllamaRouter.should_route(args.prompt):
+                print(
+                    f"{Y}Hint:{NC} prefix your prompt with one of "
+                    + ", ".join(sorted(OLLAMA_ALIASES))
+                    + " to explicitly invoke Ollama. Sending anyway…"
+                )
+            print(f"{C}→ Ollama [{args.model}]{NC} {args.prompt}\n")
+            try:
+                response = router.chat(args.prompt, model=args.model)
+                print(response)
+            except ConnectionError as exc:
+                print(f"{R}✗ {exc}{NC}")
+            except RuntimeError as exc:
+                print(f"{R}✗ {exc}{NC}")
 
     finally:
         registry.close()
