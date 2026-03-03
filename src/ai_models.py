@@ -1,13 +1,18 @@
 """
 Lucidia AI Models — Universal AI model memory hub.
 Model registry, version tracking, and performance benchmarking.
+All @copilot / @lucidia / @blackboxprogramming / @ollama requests are
+routed directly to the local Ollama instance — no external providers.
 """
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import sqlite3
-import time
+import urllib.error
+import urllib.parse
+import urllib.request
 import uuid
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
@@ -20,6 +25,88 @@ C = "\033[0;36m"; B = "\033[0;34m"; M = "\033[0;35m"; NC = "\033[0m"
 BOLD = "\033[1m"
 
 DB_PATH = Path.home() / ".blackroad" / "ai_models.db"
+
+# ── Ollama routing ────────────────────────────────────────────────────────────
+OLLAMA_BASE_URL: str = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+
+# All of these aliases resolve to the local Ollama instance — no external
+# providers are contacted regardless of which alias is used.
+OLLAMA_ALIASES: frozenset = frozenset({
+    "@copilot",
+    "@lucidia",
+    "@blackboxprogramming",
+    "@ollama",
+})
+
+
+class OllamaRouter:
+    """Route @alias chat requests directly to the local Ollama instance.
+
+    Supported aliases (case-insensitive):
+        @copilot, @lucidia, @blackboxprogramming, @ollama
+
+    All traffic goes to ``OLLAMA_BASE_URL`` (default: http://localhost:11434).
+    No external AI provider is ever contacted.
+    """
+
+    def __init__(self, base_url: str = OLLAMA_BASE_URL) -> None:
+        parsed = urllib.parse.urlparse(base_url)
+        if parsed.hostname not in ("localhost", "127.0.0.1", "::1") and not (
+            parsed.hostname or ""
+        ).startswith("192.168."):
+            raise ValueError(
+                f"Ollama base URL must point to a local/private address, "
+                f"got: {base_url!r}"
+            )
+        self.base_url = base_url.rstrip("/")
+
+    @staticmethod
+    def resolve_alias(alias: str) -> bool:
+        """Return True when *alias* should be handled by Ollama."""
+        return alias.lower() in OLLAMA_ALIASES
+
+    def chat(self, prompt: str, model: str = "llama3",
+             alias: str = "@ollama") -> Dict:
+        """Send *prompt* to Ollama and return the parsed JSON response.
+
+        Parameters
+        ----------
+        prompt:
+            The user message / query.
+        model:
+            The Ollama model tag to use (e.g. ``llama3``, ``mistral``).
+        alias:
+            The @handle that triggered this request.  Must be one of the
+            recognised ``OLLAMA_ALIASES``; raises ``ValueError`` otherwise.
+
+        Returns
+        -------
+        dict
+            The parsed JSON body returned by Ollama.
+
+        Raises
+        ------
+        ValueError
+            When *alias* is not a recognised Ollama alias.
+        urllib.error.URLError
+            When the Ollama server is unreachable.
+        """
+        if not self.resolve_alias(alias):
+            raise ValueError(
+                f"Unknown alias '{alias}'. "
+                f"Recognised aliases: {sorted(OLLAMA_ALIASES)}"
+            )
+        payload = json.dumps(
+            {"model": model, "prompt": prompt, "stream": False}
+        ).encode()
+        req = urllib.request.Request(
+            f"{self.base_url}/api/generate",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST",
+        )
+        with urllib.request.urlopen(req) as resp:  # noqa: S310
+            return json.loads(resp.read().decode())
 
 
 # ── Data models ───────────────────────────────────────────────────────────────
@@ -288,6 +375,18 @@ def main() -> None:
     get = sub.add_parser("get", help="Get model details")
     get.add_argument("model_id")
 
+    cha = sub.add_parser(
+        "chat",
+        help="Send a prompt to Ollama via an @alias "
+             "(@copilot, @lucidia, @blackboxprogramming, @ollama)",
+    )
+    cha.add_argument(
+        "--alias", required=True,
+        help="@alias to use (e.g. @ollama, @copilot, @lucidia, @blackboxprogramming)",
+    )
+    cha.add_argument("--prompt", required=True, help="Prompt text to send")
+    cha.add_argument("--model", default="llama3", help="Ollama model tag (default: llama3)")
+
     args = parser.parse_args()
     registry = AIModelRegistry()
 
@@ -344,6 +443,24 @@ def main() -> None:
             print(f"\n{BOLD}{B}── {m.name} ──────────────────────{NC}")
             for k, v in asdict(m).items():
                 print(f"  {C}{k:<20}{NC} {v}")
+
+        elif args.cmd == "chat":
+            router = OllamaRouter()
+            if not OllamaRouter.resolve_alias(args.alias):
+                print(
+                    f"{R}Unknown alias '{args.alias}'.{NC} "
+                    f"Recognised aliases: {sorted(OLLAMA_ALIASES)}"
+                )
+                return
+            print(f"{C}→ Routing '{args.alias}' to Ollama "
+                  f"[{router.base_url}] model={args.model}{NC}")
+            try:
+                result = router.chat(args.prompt, model=args.model, alias=args.alias)
+                response_text = result.get("response", json.dumps(result))
+                print(f"\n{G}{response_text}{NC}")
+            except urllib.error.URLError as exc:
+                print(f"{R}Ollama unreachable: {exc}{NC}")
+                print(f"{Y}Make sure Ollama is running: ollama serve{NC}")
 
     finally:
         registry.close()
