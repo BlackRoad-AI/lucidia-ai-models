@@ -1,12 +1,15 @@
 """Tests for src/ai_models.py — Lucidia AI Model Registry."""
+import json
 import sys
+import urllib.error
 from pathlib import Path
+from unittest.mock import MagicMock, patch
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 from ai_models import (
     ModelEntry, ModelVersion, BenchmarkResult,
-    ModelMetrics, AIModelRegistry,
+    ModelMetrics, AIModelRegistry, OllamaRouter, OLLAMA_ALIASES,
 )
 
 
@@ -163,3 +166,71 @@ def test_get_metrics_best_score_is_max(reg_with_model):
     registry.benchmark_model(BenchmarkResult(model_id=entry.model_id, task="t3", score=70.0))
     metrics = registry.get_metrics(entry.model_id)
     assert metrics.best_score == 85.0
+
+
+# ── OllamaRouter ──────────────────────────────────────────────────────────────
+def test_ollama_aliases_contains_all_handles():
+    assert "@copilot" in OLLAMA_ALIASES
+    assert "@lucidia" in OLLAMA_ALIASES
+    assert "@blackboxprogramming" in OLLAMA_ALIASES
+    assert "@ollama" in OLLAMA_ALIASES
+
+
+@pytest.mark.parametrize("prompt", [
+    "@copilot what is 2+2?",
+    "Hey @lucidia, summarise this for me",
+    "@blackboxprogramming write a function",
+    "@ollama generate some code",
+    "I need @COPILOT to help",          # case-insensitive
+])
+def test_should_route_returns_true_for_aliases(prompt):
+    assert OllamaRouter.should_route(prompt) is True
+
+
+@pytest.mark.parametrize("prompt", [
+    "write me some code",
+    "what is the weather today?",
+    "help me debug this function",
+])
+def test_should_route_returns_false_without_aliases(prompt):
+    assert OllamaRouter.should_route(prompt) is False
+
+
+def test_chat_sends_request_to_ollama():
+    """OllamaRouter.chat() must POST to /api/generate and return response text."""
+    mock_response_body = json.dumps({"response": "Hello from Ollama!"}).encode()
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = mock_response_body
+    mock_resp.__enter__ = lambda s: s
+    mock_resp.__exit__ = MagicMock(return_value=False)
+
+    with patch("urllib.request.urlopen", return_value=mock_resp) as mock_urlopen:
+        router = OllamaRouter(base_url="http://localhost:11434")
+        result = router.chat("@ollama say hello", model="llama3")
+
+    assert result == "Hello from Ollama!"
+    call_args = mock_urlopen.call_args
+    req = call_args[0][0]
+    assert req.full_url == "http://localhost:11434/api/generate"
+    body = json.loads(req.data.decode())
+    assert body["model"] == "llama3"
+    assert body["stream"] is False
+
+
+def test_chat_raises_connection_error_when_ollama_unreachable():
+    with patch("urllib.request.urlopen", side_effect=urllib.error.URLError("refused")):
+        router = OllamaRouter(base_url="http://localhost:11434")
+        with pytest.raises(ConnectionError, match="Cannot reach Ollama"):
+            router.chat("@ollama hello")
+
+
+def test_chat_raises_runtime_error_on_bad_response():
+    mock_resp = MagicMock()
+    mock_resp.read.return_value = json.dumps({"error": "model not found"}).encode()
+    mock_resp.__enter__ = lambda s: s
+    mock_resp.__exit__ = MagicMock(return_value=False)
+
+    with patch("urllib.request.urlopen", return_value=mock_resp):
+        router = OllamaRouter()
+        with pytest.raises(RuntimeError, match="Unexpected Ollama response"):
+            router.chat("@lucidia test")
