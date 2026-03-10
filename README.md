@@ -1,115 +1,85 @@
-# lucidia-ai-models
+# Lucidia AI Models
 
-> **Lucidia AI Models** — Universal AI model memory hub with registry, version tracking, and performance benchmarking.
+<div align="center">
 
-[![Python](https://img.shields.io/badge/python-3.9%2B-blue)](https://python.org)
-[![BlackRoad AI](https://img.shields.io/badge/BlackRoad-AI-FF1D6C)](https://blackroad.ai)
-[![License](https://img.shields.io/badge/license-Proprietary-black)](LICENSE)
+### Click a portal. See it work. That's it.
 
----
+[![Open Lucidia](https://img.shields.io/badge/✨%20Open%20Lucidia-lucidia.earth-FF1D6C?style=for-the-badge&logoColor=white)](https://lucidia.earth)
+[![BlackRoad AI](https://img.shields.io/badge/🖤%20BlackRoad%20AI-blackroad.io-F5A623?style=for-the-badge&logoColor=white)](https://blackroad.io)
+[![Live Portal](https://img.shields.io/badge/🌐%20Live%20Portal-Open%20Now-2979FF?style=for-the-badge&logoColor=white)](https://lucidia.earth)
 
-## Overview
-
-`lucidia-ai-models` is Lucidia's universal AI model memory hub. It provides a structured
-registry for tracking AI models from any provider (HuggingFace, OpenAI, Anthropic, Meta,
-local), managing model versions with checkpoint tracking, and recording benchmark results
-for performance comparisons — all persisted in a local SQLite database.
-
-### Architecture
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                    lucidia-ai-models                            │
-├────────────────┬───────────────────┬───────────────────────────┤
-│  CLI Layer     │  Python API       │  Persistence (SQLite)      │
-│                │                   │                            │
-│  ai-models     │  AIModelRegistry  │  ~/.blackroad/ai_models.db │
-│  register      │                   │                            │
-│  list          │  ModelEntry       │  ┌────────┐ ┌──────────┐  │
-│  version       │  ModelVersion     │  │models  │ │versions  │  │
-│  benchmark     │  BenchmarkResult  │  ├────────┤ ├──────────┤  │
-│  metrics       │  ModelMetrics     │  │bench-  │ │          │  │
-│  get           │                   │  │marks   │ │          │  │
-└────────────────┴───────────────────┴──┴────────┴─┴──────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-### Data Model
-
-```
-ModelEntry (1) ──────────── (N) ModelVersion
-     │                              │
-     │                              │ (FK: model_id)
-     └────────────── (N) BenchmarkResult
-                            │
-                    (FK: model_id, version_id)
-```
+</div>
 
 ---
 
-## Features
+## 🚀 Live Portals — No Setup Required
 
-- 📚 **Model Registry** — register models from any provider with metadata
-- 🏷️ **Tag Support** — flexible tagging (chat, instruct, rlhf, code, etc.)
-- 📌 **Version Tracking** — track model checkpoints with training step counts
-- 🏆 **Benchmarking** — record MMLU, HellaSwag, HumanEval scores with latency metrics
-- 📊 **Metrics Aggregation** — best score, avg latency, version history per model
-- 🔍 **Provider Filtering** — list models by provider
-- 🗄️ **Zero-config DB** — auto-creates `~/.blackroad/ai_models.db`
-- 🖥️ **Rich CLI** — formatted table output with colored metrics bar
+> **No terminal. No installs. No jargon. Just click.**
 
----
-
-## Requirements
-
-| Package | Version | Purpose |
-|---------|---------|---------|
-| Python | ≥ 3.9 | Runtime |
-| pytest | ≥ 7.0 | Testing |
-
-No external AI library dependencies — pure stdlib + sqlite3.
+| Portal | What It Does | Open |
+|--------|-------------|------|
+| 🌍 **[lucidia.earth](https://lucidia.earth)** | The full Lucidia AI experience | **[→ Open Now](https://lucidia.earth)** |
+| 🖤 **[blackroad.io](https://blackroad.io)** | BlackRoad AI platform | **[→ Open Now](https://blackroad.io)** |
+| ⚙️ **[GitHub Source](https://github.com/BlackRoad-AI/lucidia-ai-models)** | Browse the source code | **[→ View Code](https://github.com/BlackRoad-AI/lucidia-ai-models)** |
+| 📧 **[Contact Us](mailto:blackroad.systems@gmail.com)** | Get help, say hello | **[→ Email](mailto:blackroad.systems@gmail.com)** |
 
 ---
 
-## Installation
+## ✨ What Is This?
+
+**Lucidia AI Models** is the intelligence engine that remembers your AI models so you don't have to.
+
+- Track every model you've ever used — from OpenAI to Meta to your own custom builds
+- Know which version of which model performed best and why
+- Never lose a benchmark result again
+- Everything persisted automatically — no cloud required
+
+**You don't need to touch any code to use the portals above.** This repo is the engine under the hood.
+
+---
+
+## 🎯 What You Can Do Right Now
+
+1. **Go to [lucidia.earth](https://lucidia.earth)** — explore the live AI platform
+2. **Go to [blackroad.io](https://blackroad.io)** — see the full BlackRoad AI ecosystem
+3. **Star this repo** — get updates when new portals go live
+
+That's literally it for most people. ☝️
+
+---
+
+## 🧠 What's Inside (For the Curious)
+
+| Feature | Description |
+|---------|-------------|
+| 📚 **Model Registry** | Register models from any provider with metadata |
+| 📌 **Version Tracking** | Track checkpoints, training steps, notes |
+| 🏆 **Benchmarking** | MMLU, HellaSwag, HumanEval scores + latency |
+| 📊 **Metrics Aggregation** | Best scores, averages, full history per model |
+| 🗄️ **Zero-Config DB** | Auto-creates `~/.blackroad/ai_models.db` — just works |
+| 🔒 **Your Data** | Local SQLite, no external cloud needed |
+
+---
+
+## 💻 For Developers (Optional)
+
+<details>
+<summary>Click to expand developer setup</summary>
+
+### Requirements
+
+- Python ≥ 3.9
+
+### Quick Start
 
 ```bash
 git clone https://github.com/BlackRoad-AI/lucidia-ai-models.git
 cd lucidia-ai-models
-
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
-## Configuration
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `LUCIDIA_MODELS_DB` | `~/.blackroad/ai_models.db` | SQLite DB path |
-
-### Supported Providers
-
-The registry is provider-agnostic. Common values:
-
-| Provider | Example Models |
-|----------|---------------|
-| `huggingface` | Mistral, Falcon, Zephyr |
-| `meta` | LLaMA-2, LLaMA-3, CodeLlama |
-| `openai` | GPT-4, GPT-3.5-turbo |
-| `anthropic` | Claude-3, Claude-2 |
-| `deepseek` | DeepSeek-Coder, DeepSeek-V2 |
-| `alibaba` | Qwen-2.5, Qwen-72B |
-| `blackroad` | Custom fine-tuned models |
-
----
-
-## Usage
-
-### CLI
-
-#### Register a model
+### Register a Model
 
 ```bash
 python src/ai_models.py register \
@@ -117,119 +87,27 @@ python src/ai_models.py register \
     --provider meta \
     --arch transformer \
     --params 8B \
-    --tags chat instruct rlhf
+    --tags chat instruct
 ```
 
-**Output:**
-```
-✓ Registered LLaMA-3 8B Instruct [a3f2c1e8] provider=meta
-```
-
-#### List all models
+### List Models
 
 ```bash
 python src/ai_models.py list
 ```
 
-**Output:**
-```
-──────────────────────────────────────────────────────────
-│ ID       │ Name                  │ Provider  │ Params │ Tags             │
-──────────────────────────────────────────────────────────
-│ a3f2c1e8 │ LLaMA-3 8B Instruct  │ meta      │ 8B     │ chat,instruct    │
-│ b1c4d2e0 │ Mistral 7B v0.2      │ hf        │ 7B     │ chat             │
-│ c9f3a2d1 │ Qwen-2.5 72B         │ alibaba   │ 72B    │ instruct,code    │
-──────────────────────────────────────────────────────────
-```
-
-#### Filter by provider
+### Run Tests
 
 ```bash
-python src/ai_models.py list --provider meta
+pytest tests/test_ai_models.py -v
 ```
-
-#### Add a version checkpoint
-
-```bash
-python src/ai_models.py version \
-    --model-id a3f2c1e8 \
-    --version 1.2.0 \
-    --steps 50000 \
-    --path /models/llama3-8b/checkpoint-50000 \
-    --notes "Post-RLHF fine-tune, improved instruction following"
-```
-
-**Output:**
-```
-✓ Version 1.2.0 added for model a3f2c1e8
-```
-
-#### Record a benchmark
-
-```bash
-python src/ai_models.py benchmark \
-    --model-id a3f2c1e8 \
-    --task mmlu \
-    --score 68.4 \
-    --p50 112.0 \
-    --p99 380.0 \
-    --tps 14.2
-```
-
-**Output:**
-```
-✓ Benchmark [mmlu] score=68.4 ██████░░░░ p50=112.0ms
-```
-
-#### View model metrics
-
-```bash
-python src/ai_models.py metrics --model-id a3f2c1e8
-```
-
-**Output:**
-```
-── Metrics: a3f2c1e8 ──────────
-  model_id               a3f2c1e8
-  total_versions         3
-  total_benchmarks       5
-  best_score             72.1
-  avg_latency_ms         145.3
-  last_updated           2025-01-15T10:32:11
-```
-
-#### Get full model details
-
-```bash
-python src/ai_models.py get a3f2c1e8
-```
-
-**Output:**
-```
-── LLaMA-3 8B Instruct ──────────────────
-  model_id             a3f2c1e8
-  name                 LLaMA-3 8B Instruct
-  provider             meta
-  architecture         transformer
-  parameter_count      8B
-  license              apache-2.0
-  tags                 ['chat', 'instruct', 'rlhf']
-  created_at           2025-01-14T09:00:00
-```
-
----
 
 ### Python API
 
 ```python
-from pathlib import Path
-from src.ai_models import (
-    AIModelRegistry, ModelEntry, ModelVersion, BenchmarkResult
-)
+from src.ai_models import AIModelRegistry, ModelEntry
 
 registry = AIModelRegistry()
-
-# Register a model
 entry = registry.register_model(ModelEntry(
     name="LLaMA-3 8B",
     provider="meta",
@@ -237,130 +115,33 @@ entry = registry.register_model(ModelEntry(
     parameter_count="8B",
     tags=["chat", "instruct"],
 ))
-
-# Add a version
-registry.add_version(ModelVersion(
-    model_id=entry.model_id,
-    version="1.0.0",
-    training_steps=100_000,
-    notes="Base model",
-))
-
-# Record a benchmark
-registry.benchmark_model(BenchmarkResult(
-    model_id=entry.model_id,
-    task="mmlu",
-    score=68.4,
-    latency_p50_ms=112.0,
-    latency_p99_ms=380.0,
-    throughput_rps=14.2,
-))
-
-# Query metrics
-metrics = registry.get_metrics(entry.model_id)
-print(f"Best score: {metrics.best_score}")
-
-# List all
-for model in registry.list_models(provider="meta"):
-    print(f"{model.model_id}: {model.name}")
-
 registry.close()
 ```
 
----
+### Environment Variables
 
-## API Reference
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `LUCIDIA_MODELS_DB` | `~/.blackroad/ai_models.db` | SQLite DB path |
 
-### `AIModelRegistry`
-
-| Method | Returns | Description |
-|--------|---------|-------------|
-| `register_model(entry)` | `ModelEntry` | Register a new model |
-| `get_model(model_id)` | `Optional[ModelEntry]` | Fetch model by ID |
-| `list_models(provider?)` | `List[ModelEntry]` | List all (or filter) models |
-| `add_version(version)` | `ModelVersion` | Add a version checkpoint |
-| `get_versions(model_id)` | `List[ModelVersion]` | Get all versions |
-| `benchmark_model(result)` | `BenchmarkResult` | Record benchmark result |
-| `get_metrics(model_id)` | `Optional[ModelMetrics]` | Get aggregate metrics |
-| `close()` | `None` | Close DB connection |
-
-### `ModelEntry` Fields
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `model_id` | `str` | auto-UUID8 | Unique ID |
-| `name` | `str` | required | Full model name |
-| `provider` | `str` | `""` | Source provider |
-| `architecture` | `str` | `""` | Architecture type |
-| `parameter_count` | `str` | `""` | Parameter count (e.g. "7B") |
-| `license` | `str` | `"apache-2.0"` | License SPDX |
-| `tags` | `List[str]` | `[]` | Searchable tags |
+</details>
 
 ---
 
-## Running Tests
+## 🌐 Related Portals
 
-```bash
-pytest tests/test_ai_models.py -v
-
-# Expected: 18 passed
-```
-
----
-
-## Database Schema
-
-```sql
--- ~/.blackroad/ai_models.db
-
-CREATE TABLE models (
-    model_id        TEXT PRIMARY KEY,
-    name            TEXT NOT NULL,
-    provider        TEXT,
-    architecture    TEXT,
-    parameter_count TEXT,
-    license         TEXT,
-    tags_json       TEXT,   -- JSON array
-    created_at      TEXT
-);
-
-CREATE TABLE versions (
-    version_id      TEXT PRIMARY KEY,
-    model_id        TEXT NOT NULL REFERENCES models(model_id),
-    version         TEXT NOT NULL,
-    checkpoint_path TEXT,
-    training_steps  INTEGER DEFAULT 0,
-    is_latest       INTEGER DEFAULT 1,
-    notes           TEXT,
-    created_at      TEXT
-);
-
-CREATE TABLE benchmarks (
-    bench_id        TEXT PRIMARY KEY,
-    model_id        TEXT NOT NULL,
-    version_id      TEXT,
-    task            TEXT,
-    score           REAL,
-    latency_p50_ms  REAL,
-    latency_p99_ms  REAL,
-    throughput_rps  REAL,
-    gpu_memory_gb   REAL,
-    notes           TEXT,
-    created_at      TEXT
-);
-```
+| Portal | Role |
+|--------|------|
+| [lucidia.earth](https://lucidia.earth) | Main Lucidia experience |
+| [blackroad.io](https://blackroad.io) | BlackRoad AI platform |
+| [github.com/BlackRoad-AI](https://github.com/BlackRoad-AI) | All open repos |
 
 ---
 
-## Related Repos
+<div align="center">
 
-| Repo | Role |
-|------|------|
-| `lucidia-ai-models-enhanced` | Quantization & LoRA pipeline |
-| `blackroad-vllm-mvp` | Inference server wrapper |
-| `blackroad-ai-cluster` | Distributed cluster orchestration |
-| `blackroad-ai-memory-bridge` | Agent semantic memory |
+**[✨ Open Lucidia](https://lucidia.earth)** · **[🖤 BlackRoad AI](https://blackroad.io)** · **[📧 Contact](mailto:blackroad.systems@gmail.com)**
 
----
+*© BlackRoad OS, Inc. All rights reserved.*
 
-*© BlackRoad OS, Inc. All rights reserved. Proprietary — not open source.*
+</div>

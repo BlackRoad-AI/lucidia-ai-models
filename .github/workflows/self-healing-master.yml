@@ -31,7 +31,7 @@ jobs:
     
     steps:
       - name: 🔍 Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -82,12 +82,12 @@ jobs:
     
     steps:
       - name: 🔍 Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
       
       - name: ⚙️ Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       
@@ -176,7 +176,7 @@ jobs:
       
       - name: ❌ Create Issue on Failure
         if: failure()
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const title = '🚨 Self-Healing Failed: ${{ needs.analyze-failure.outputs.fix_type }}';
@@ -253,7 +253,7 @@ jobs:
       
       - name: 🚨 Create Health Alert
         if: steps.health.outputs.unhealthy == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const title = '🚨 Service Health Alert';
@@ -309,10 +309,10 @@ jobs:
     
     steps:
       - name: 🔍 Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
       
       - name: ⚙️ Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v4
         with:
           node-version: '20'
       
@@ -355,7 +355,7 @@ jobs:
       
       - name: 📝 Create Security Report
         if: steps.audit.outputs.vulnerabilities_found == 'true'
-        uses: actions/github-script@v8
+        uses: actions/github-script@v7
         with:
           script: |
             const fs = require('fs');
