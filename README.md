@@ -363,4 +363,4 @@ CREATE TABLE benchmarks (
 
 ---
 
-*© BlackRoad OS, Inc. All rights reserved. Proprietary — not open source.*
+*© BlackRoad OS, Inc. All rights reserved. Proprietary — not open-access.*
